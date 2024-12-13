@@ -63,6 +63,9 @@ module.exports = (sequelize, DataTypes) => {
           exclude: ['hashedPassword', 'email', 'createdAt', 'updatedAt'],
         },
       },
+  //  START include for EVERY MODEL for Render deployment
+  schema: process.env.SCHEMA || 'public',  // define your schema in options object
+//  END include for EVERY MODEL for Render deployment
     }
   );
   return User;
