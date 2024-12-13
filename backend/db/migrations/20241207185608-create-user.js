@@ -1,9 +1,11 @@
 'use strict';
 
+//  START include for EVERY MIGRATION for Render deployment
 let options = {};
 if (process.env.NODE_ENV === 'production') {
   options.schema = process.env.SCHEMA;  // define your schema in options object
 }
+//  END include for EVERY MIGRATION for Render deployment
 
 module.exports = {
   async up(queryInterface, Sequelize) {
@@ -46,7 +48,7 @@ module.exports = {
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       }
-    }, options);
+    }, options); //include for EVERY MIGRATION for Render deployment
   },
 
   async down(queryInterface, Sequelize) {

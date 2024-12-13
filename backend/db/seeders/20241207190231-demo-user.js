@@ -3,10 +3,12 @@
 const { User } = require('../models');
 const bcrypt = require("bcryptjs");
 
+//  START include for EVERY SEEDER for Render deployment
 let options = {};
 if (process.env.NODE_ENV === 'production') {
   options.schema = process.env.SCHEMA;  // define your schema in options object
 }
+//  END include for EVERY SEEDER for Render deployment
 
 module.exports = {
   async up (queryInterface, Sequelize) {
