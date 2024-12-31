@@ -66,11 +66,11 @@ module.exports = {
       }
     }, options); //include for EVERY MIGRATION for Render deployment
 
-    //query optimization
-    await queryInterface.addIndex('Spots', ['ownerId']);
-    await queryInterface.addIndex('Spots', ['city', 'state']);
-    await queryInterface.addIndex('Spots', ['price']);
-    //does it need lat and lng for location?
+    // //query optimization
+    // await queryInterface.addIndex('Spots', ['ownerId']);
+    // await queryInterface.addIndex('Spots', ['city', 'state']);
+    // await queryInterface.addIndex('Spots', ['price']);
+    // //does it need lat and lng for location?
   },
 
   async down(queryInterface, Sequelize) {

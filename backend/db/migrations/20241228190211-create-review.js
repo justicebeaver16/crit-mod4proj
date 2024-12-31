@@ -58,14 +58,14 @@ module.exports = {
       }
     }, options); //include for EVERY MIGRATION for Render deployment
 
-    //index foreign keys for queries
-    await queryInterface.addIndex('Reviews', ['spotId']);
-    await queryInterface.addIndex('Reviews', ['userId']);
+    // //index foreign keys for queries
+    // await queryInterface.addIndex('Reviews', ['spotId']);
+    // await queryInterface.addIndex('Reviews', ['userId']);
     
-    //to prevent multiple reviews from same user for same spot
-    await queryInterface.addIndex('Reviews', ['spotId', 'userId'], {
-      unique: true
-    });
+    // //to prevent multiple reviews from same user for same spot
+    // await queryInterface.addIndex('Reviews', ['spotId', 'userId'], {
+    //   unique: true
+    // });
   },
 
   async down(queryInterface, Sequelize) {

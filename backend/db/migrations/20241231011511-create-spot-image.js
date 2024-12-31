@@ -46,11 +46,11 @@ module.exports = {
       }
     }, options); //include for EVERY MIGRATION for Render deployment
 
-    //query optimization
-    await queryInterface.addIndex('SpotImages', ['spotId']);
+    // //query optimization
+    // await queryInterface.addIndex('SpotImages', ['spotId']);
     
-    //preview images
-    await queryInterface.addIndex('SpotImages', ['spotId', 'preview']);
+    // //preview images
+    // await queryInterface.addIndex('SpotImages', ['spotId', 'preview']);
   },
 
   async down(queryInterface, Sequelize) {

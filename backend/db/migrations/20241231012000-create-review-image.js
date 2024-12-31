@@ -41,13 +41,13 @@ module.exports = {
       }
     }, options); //include for EVERY MIGRATION for Render deployment
 
-    //reviewId for query optimization
-    await queryInterface.addIndex('ReviewImages', ['reviewId']);
+    // //reviewId for query optimization
+    // await queryInterface.addIndex('ReviewImages', ['reviewId']);
 
-    //10 images per review limit
-    await queryInterface.addIndex('ReviewImages', ['reviewId'], {
-      name: 'review_image_count_index'
-    });
+    // //10 images per review limit
+    // await queryInterface.addIndex('ReviewImages', ['reviewId'], {
+    //   name: 'review_image_count_index'
+    // });
   },
 
   async down(queryInterface, Sequelize) {

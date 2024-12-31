@@ -54,22 +54,22 @@ module.exports = {
       }
     }, options); //include for EVERY MIGRATION for Render deployment
 
-    //for query optimization
-    await queryInterface.addIndex('Bookings', ['spotId']);
-    await queryInterface.addIndex('Bookings', ['userId']);
+    // //for query optimization
+    // await queryInterface.addIndex('Bookings', ['spotId']);
+    // await queryInterface.addIndex('Bookings', ['userId']);
     
-    //for date range queries
-    await queryInterface.addIndex('Bookings', ['startDate', 'endDate']);
+    // //for date range queries
+    // await queryInterface.addIndex('Bookings', ['startDate', 'endDate']);
     
-    //to prevent duplicate bookings
-    await queryInterface.addIndex(
-      'Bookings',
-      ['spotId', 'startDate', 'endDate'],
-      {
-        unique: true,
-        name: 'unique_booking'
-      }
-    );
+    // //to prevent duplicate bookings
+    // await queryInterface.addIndex(
+    //   'Bookings',
+    //   ['spotId', 'startDate', 'endDate'],
+    //   {
+    //     unique: true,
+    //     name: 'unique_booking'
+    //   }
+    // );
   },
 
   async down(queryInterface, Sequelize) {
