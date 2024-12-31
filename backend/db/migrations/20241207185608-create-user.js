@@ -49,10 +49,10 @@ module.exports = {
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       }
     }, options); //include for EVERY MIGRATION for Render deployment
-    
-    //optimization
-    await queryInterface.addIndex('Users', ['username']);
-    await queryInterface.addIndex('Users', ['email']);
+
+    // //optimization
+    // await queryInterface.addIndex('Users', ['username']);
+    // await queryInterface.addIndex('Users', ['email']);
   },
 
   async down(queryInterface, Sequelize) {
