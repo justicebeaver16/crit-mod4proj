@@ -9,33 +9,37 @@ if (process.env.NODE_ENV === 'production') {
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Users', {
+    await queryInterface.createTable('Bookings', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      username: {
-        type: Sequelize.STRING(30),
+      spotId: {
+        type: Sequelize.INTEGER,
         allowNull: false,
-        unique: true
+        references: {
+          model: 'Spots',
+          key: 'id'
+        },
+        onDelete: 'CASCADE'
       },
-      email: {
-        type: Sequelize.STRING(256),
+      userId: {
+        type: Sequelize.INTEGER,
         allowNull: false,
-        unique: true
+        references: {
+          model: 'Users',
+          key: 'id'
+        },
+        onDelete: 'CASCADE'
       },
-      firstName: {
-        type: Sequelize.STRING(30),
+      startDate: {
+        type: Sequelize.DATE,
         allowNull: false
       },
-      lastName: {
-        type: Sequelize.STRING(30),
-        allowNull: false
-      },
-      hashedPassword: {
-        type: Sequelize.STRING.BINARY,
+      endDate: {
+        type: Sequelize.DATE,
         allowNull: false
       },
       createdAt: {
@@ -49,14 +53,27 @@ module.exports = {
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       }
     }, options); //include for EVERY MIGRATION for Render deployment
+
+    //for query optimization
+    await queryInterface.addIndex('Bookings', ['spotId']);
+    await queryInterface.addIndex('Bookings', ['userId']);
     
-    //optimization
-    await queryInterface.addIndex('Users', ['username']);
-    await queryInterface.addIndex('Users', ['email']);
+    //for date range queries
+    await queryInterface.addIndex('Bookings', ['startDate', 'endDate']);
+    
+    //to prevent duplicate bookings
+    await queryInterface.addIndex(
+      'Bookings',
+      ['spotId', 'startDate', 'endDate'],
+      {
+        unique: true,
+        name: 'unique_booking'
+      }
+    );
   },
 
   async down(queryInterface, Sequelize) {
-    options.tableName = "Users";
-    return queryInterface.dropTable(options);
+    options.tableName = "Bookings";
+    await queryInterface.dropTable(options);
   }
 };

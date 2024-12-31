@@ -9,7 +9,6 @@ const { ValidationError } = require('sequelize');
 
 const { environment } = require('./config');
 const isProduction = environment === 'production';
-
 // backend/app.js
 const routes = require('./routes');
 
