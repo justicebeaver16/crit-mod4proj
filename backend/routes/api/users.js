@@ -28,7 +28,7 @@ const validateSignup = [
     handleValidationErrors
   ];
 
-// Sign up
+//sign up
 router.post(
     '/',
     validateSignup,
@@ -52,5 +52,33 @@ router.post(
       });
     }
   );
+
+//check if email exists
+const existingEmail = await User.findOne({
+  where: { email }
+});
+
+if (existingEmail) {
+  return res.status(500).json({
+    message: 'User already exists',
+    errors: {
+      email: 'User with that email already exists'
+    }
+  });
+}
+
+//check if username exists  
+const existingUsername = await User.findOne({
+  where: { username }
+});
+
+if (existingUsername) {
+  return res.status(500).json({
+    message: 'User already exists', 
+    errors: {
+      username: 'User with that username already exists'
+    }
+  });
+}
 
 module.exports = router;

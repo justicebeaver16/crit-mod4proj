@@ -5,33 +5,34 @@ const cors = require('cors');
 const csurf = require('csurf');
 const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
+
+const isProduction = environment === 'production';
+const { environment } = require('./config');
 const { ValidationError } = require('sequelize');
 
-const { environment } = require('./config');
-const isProduction = environment === 'production';
-// backend/app.js
 const routes = require('./routes');
 
 const app = express();
 
+//middleware
 app.use(morgan('dev'));
 app.use(cookieParser());
 app.use(express.json());
 
-// Security Middleware
+//security middleware
 if (!isProduction) {
-    // enable cors only in development
+    //enable cors only in development
     app.use(cors());
   }
   
-  // helmet helps set a variety of headers to better secure your app
+//helmet helps set headers for better security
   app.use(
     helmet.crossOriginResourcePolicy({
       policy: "cross-origin"
     })
   );
   
-  // Set the _csrf token and create req.csrfToken method
+  //sets _csrf token and creates req.csrfToken
   app.use(
     csurf({
       cookie: {
@@ -42,9 +43,9 @@ if (!isProduction) {
     })
   );
 
-app.use(routes); // Connect all the routes
+app.use(routes); //connects all the routes
 
-// Catch unhandled requests and forward to error handler.
+//catch unhandled requests and goes to error handler
 app.use((_req, _res, next) => {
   const err = new Error("The requested resource couldn't be found.");
   err.title = "Resource Not Found";
@@ -53,9 +54,9 @@ app.use((_req, _res, next) => {
   next(err);
 });
 
-// Process sequelize errors
+//process sequelize errors
 app.use((err, _req, _res, next) => {
-  // check if error is a Sequelize error:
+  //checks if error is a sequelize error
   if (err instanceof ValidationError) {
     let errors = {};
     for (let error of err.errors) {
@@ -67,10 +68,10 @@ app.use((err, _req, _res, next) => {
   next(err);
 });
 
-// Error formatter
+//error formatting
 app.use((err, _req, res, _next) => {
   res.status(err.status || 500);
-  console.error(err); //remove console.log once in production
+  // console.error(err); //remove console.log once in production
   res.json({
     title: err.title || 'Server Error',
     message: err.message,
