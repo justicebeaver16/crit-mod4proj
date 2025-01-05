@@ -7,7 +7,13 @@ const { secret, expiresIn } = jwtConfig;
 //sends a jwt cookie
 const setTokenCookie = (res, user) => {
     //creates token
-    const safeUser = user.toSafeObject();
+    const safeUser = {
+      id: user.id,
+      email: user.email,
+      username: user.username,
+      firstName: user.firstName,
+      lastName: user.lastName
+  };
     const token = jwt.sign(
       { data: safeUser },
       secret,
@@ -55,15 +61,41 @@ const setTokenCookie = (res, user) => {
     });
   };
 
-  //returns error for no current user
-const requireAuth = function (req, _res, next) {
-    if (req.user) return next();
-  
-    const err = new Error('Authentication required');
-    err.title = 'Authentication required';
-    err.errors = { message: 'Authentication required' };
-    err.status = 401;
-    return next(err);
-  }
+  //auth middleware
+  const requireAuth = function (req, res, next) {
+    const { token } = req.cookies;
+
+    return jwt.verify(token, secret, null, async (err, jwtPayload) => {
+        if (err) {
+            return res.status(401).json({
+                title: "Authentication required",
+                message: "Authentication required",
+                errors: { message: "Authentication required" }
+            });
+        }
+
+        try {
+            req.user = await User.scope('currentUser').findByPk(jwtPayload.data.id);
+        } catch (e) {
+            res.clearCookie('token');
+            return res.status(401).json({
+                title: "Authentication required",
+                message: "Authentication required",
+                errors: { message: "Authentication required" }
+            });
+        }
+
+        if (!req.user) {
+            res.clearCookie('token');
+            return res.status(401).json({
+                title: "Authentication required",
+                message: "Authentication required",
+                errors: { message: "Authentication required" }
+            });
+        }
+
+        return next();
+      });
+};
 
 module.exports = { setTokenCookie, restoreUser, requireAuth };

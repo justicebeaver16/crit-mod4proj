@@ -8,18 +8,25 @@ module.exports = (sequelize, DataTypes) => {
 
     //sensitve info
     toSafeObject() {
-      const { id, firstName, lastName, email, username } = this;
-      return { id, firstName, lastName, email, username };
+      const {id, username, firstName, lastName, email} = this;
+      return {id, username, firstName, lastName, email};
     }
     //validate password
     validatePassword(password) {
       return bcrypt.compareSync(password, this.hashedPassword.toString());
     }
+
+    static getCurrentUserById(id) {
+      return User.scope("currentUser").findByPk(id);
+    }
+
     //find user by email or username
     static async login({ credential, password }) {
+      const { Op } = require('sequelize');
       const user = await User.scope('loginUser').findOne({
         where: {
-          [sequelize.Op.or]: {
+          // [sequelize.Op.or]: {
+          [Op.or]: {
             username: credential,
             email: credential
           }
@@ -30,14 +37,15 @@ module.exports = (sequelize, DataTypes) => {
       }
     }
     //create new user
-    static async signup({ firstName, lastName, username, email, password }) {
-      const hashedPassword = bcrypt.hashSync(password, 10);
+    static async signup({username, email, password, firstName, lastName}) {
+      // const hashedPassword = bcrypt.hashSync(password, 10);
+      const hashedPassword = bcrypt.hashSync(password);
       const user = await User.create({
-        firstName,
-        lastName,
         username,
         email,
-        hashedPassword
+        hashedPassword,
+        firstName,
+        lastName
       });
       return await User.scope('currentUser').findByPk(user.id);
     }
@@ -62,12 +70,11 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
 
-  User.init(
-    {
+  User.init({
       username: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true,
+        // unique: true,
         validate: {
           len: [4, 30],
           isNotEmail(value) {
@@ -86,36 +93,36 @@ module.exports = (sequelize, DataTypes) => {
           isEmail: true,
         }
       },
-      firstName: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        validate: {
-          len: [3, 256],
-          isNotEmail(value) {
-            if (Validator.isEmail(value)) {
-              throw new Error("Cannot be an email.");
-            }
-          }
-        }
-      },
-      lastName: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        validate: {
-          len: [3, 256],
-          isNotEmail(value) {
-            if (Validator.isEmail(value)) {
-              throw new Error("Cannot be an email.");
-            }
-          }
-        }
-      },
       hashedPassword: {
-        type: DataTypes.STRING.BINARY,
+        type: DataTypes.STRING,
         allowNull: false,
         validate: {
           len: [60, 60],
         },
+      },
+      firstName: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        // validate: {
+        //   len: [3, 256],
+        //   isNotEmail(value) {
+        //     if (Validator.isEmail(value)) {
+        //       throw new Error("Cannot be an email.");
+        //     }
+        //   }
+        // }
+      },
+      lastName: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        // validate: {
+        //   len: [3, 256],
+        //   isNotEmail(value) {
+        //     if (Validator.isEmail(value)) {
+        //       throw new Error("Cannot be an email.");
+        //     }
+        //   }
+        // }
       },
     },
     {
@@ -123,10 +130,17 @@ module.exports = (sequelize, DataTypes) => {
       modelName: 'User',
       defaultScope: {
         attributes: {
-          exclude: ['hashedPassword', 'email', 'createdAt', 'updatedAt'],
-        },
+          exclude: ['hashedPassword', 'email', 'createdAt', 'updatedAt']
+        }
       },
+      scopes: {
+        currentUser: {
+          attributes: { exclude: ['hashedPassword'] }
+        },
+        loginUser: {
+          attributes: {}
+        }
     }
-  );
+  });
   return User;
 };

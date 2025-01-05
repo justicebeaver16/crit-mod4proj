@@ -1,41 +1,34 @@
 const express = require('express');
-const { check } = require('express-validator');
-const { handleValidationErrors } = require('../../utils/validation');
-const { requireAuth } = require('../../utils/auth');
-const { Op } = require('sequelize');
+const { Sequelize } = require('sequelize');
 const { Spot, SpotImage, Review, User, Booking } = require('../../db/models');
+const { requireAuth } = require('../../utils/auth');
+const { check } = require('express-validator');
+const { validateSpot, validateQuery } = require('../../utils/validation');
+const { handleValidationErrors } = require('../../utils/validation');
+const { Op } = require('sequelize');
 
 const router = express.Router();
 
-const validateSpot = [
-    check('address')
-        .exists({ checkFalsy: true })
-        .withMessage('Street address is required'),
-    check('city')
-        .exists({ checkFalsy: true })
-        .withMessage('City is required'),
-    check('state')
-        .exists({ checkFalsy: true })
-        .withMessage('State is required'),
-    check('country')
-        .exists({ checkFalsy: true })
-        .withMessage('Country is required'),
-    //does it need lat and lng?
-    check('name')
-        .isLength({ max: 50 })
-        .withMessage('Name must be less than 50 characters'),
-    check('description')
-        .exists({ checkFalsy: true })
-        .withMessage('Description is required'),
-    check('price')
-        .isFloat({ min: 0 })
-        .withMessage('Price per day must be a positive number'),
-    handleValidationErrors
-];
-
 //get all spots
-router.get('/', async (req, res) => {
+router.get('/', validateQuery, async (req, res) => {
+  try{
+  let { minLat, maxLat, minLng, maxLng } = req.query;
+
+  const where = {};
+
+  if (minLat || maxLat) {
+    where.lat = {};
+    if (minLat) where.lat[Op.gte] = Number(minLat);
+    if (maxLat) where.lat[Op.lte] = Number(maxLat);
+  }
+  if (minLng || maxLng) {
+    where.lng = {};
+    if (minLng) where.lng[Op.gte] = Number(minLng);
+    if (maxLng) where.lng[Op.lte] = Number(maxLng);
+  }
+
     const spots = await Spot.findAll({
+        where,
         include: [
             {
                 model: Review,
@@ -50,13 +43,42 @@ router.get('/', async (req, res) => {
         ],
         group: ['Spot.id', 'SpotImages.id'],
         attributes: {
-            include: [
-                [sequelize.fn('AVG', sequelize.col('Reviews.stars')), 'avgRating']
-            ]
+          include: [
+            'id',
+            'ownerId',
+            'address',
+            'city',
+            'state',
+            'country',
+            'lat',
+            'lng',
+            'name',
+            'description',
+            'price',
+            'createdAt',
+            'updatedAt',
+            [Sequelize.fn('COALESCE', Sequelize.fn('AVG', Sequelize.col('Reviews.stars')), 0), 'avgRating']
+        ]
         }
     });
-    
-    return res.json({ Spots: spots });
+
+    const formattedSpots = spots.map(spot => {
+      const spotData = spot.toJSON();
+      spotData.avgRating = Number(spotData.avgRating).toFixed(1);
+      spotData.previewImage = spotData.SpotImages?.[0]?.url || null;
+      delete spotData.SpotImages;
+      return spotData;
+  });
+
+    return res.json({ Spots: formattedSpots });
+
+}catch (error) {
+  console.error('Error:', error);
+  return res.status(500).json({
+      message: "An error occurred while fetching spots",
+      errors: error.errors ? error.errors.map(err => err.message) : [error.message]
+  });
+}
 });
 
 //get current user's spots
@@ -76,14 +98,34 @@ router.get('/current', requireAuth, async (req, res) => {
         }
       ],
       group: ['Spot.id', 'SpotImages.id'],
-      attributes: {
-        include: [
-          [sequelize.fn('AVG', sequelize.col('Reviews.stars')), 'avgRating']
-        ]
+        attributes: {
+            include: [
+                'id',
+                'ownerId',
+                'address',
+                'city',
+                'state',
+                'country',
+                'lat',
+                'lng',
+                'name',
+                'description',
+                'price',
+                'createdAt',
+                'updatedAt',
+                [Sequelize.fn('COALESCE', Sequelize.fn('AVG', Sequelize.col('Reviews.stars')), 0), 'avgRating']
+            ]
       }
     });
-   
-    res.json({ Spots: spots });
+    const formattedSpots = spots.map(spot => {
+      const spotData = spot.toJSON();
+      spotData.avgRating = Number(spotData.avgRating).toFixed(1);
+      spotData.previewImage = spotData.SpotImages?.[0]?.url || null;
+      delete spotData.SpotImages;
+      return spotData;
+  });
+
+    res.json({ Spots: formattedSpots });
    });
 
 //get spot details by id
@@ -106,8 +148,8 @@ router.get('/:spotId', async (req, res) => {
       ],
       attributes: {
         include: [
-          [sequelize.fn('COUNT', sequelize.col('Reviews.id')), 'numReviews'],
-          [sequelize.fn('AVG', sequelize.col('Reviews.stars')), 'avgStarRating']
+          [Sequelize.fn('COUNT', Sequelize.col('Reviews.id')), 'numReviews'],
+          [Sequelize.fn('AVG', Sequelize.col('Reviews.stars')), 'avgStarRating']
         ]
       },
       group: ['Spot.id', 'SpotImages.id', 'Owner.id']
@@ -169,8 +211,25 @@ router.put('/:spotId', requireAuth, validateSpot, async (req, res) => {
     }
    
     await spot.update(req.body);
-   
-    res.json(spot);
+    const updatedSpot = await Spot.findByPk(req.params.spotId, {
+      attributes: [
+          'id', 
+          'ownerId', 
+          'address', 
+          'city', 
+          'state', 
+          'country', 
+          'lat', 
+          'lng', 
+          'name', 
+          'description', 
+          'price',
+          'createdAt',
+          'updatedAt'
+      ]
+  });
+
+    res.json(updatedSpot);
    });
 
 //delete a spot

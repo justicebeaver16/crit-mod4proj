@@ -27,6 +27,9 @@ module.exports = (sequelize, DataTypes) => {
     startDate: {
       type: DataTypes.DATE,
       allowNull: false,
+      get() {
+        return this.getDataValue('startDate').toISOString().split('T')[0];
+      },
       validate: {
         isDate: true,
         isNotPast(value) {
@@ -39,6 +42,9 @@ module.exports = (sequelize, DataTypes) => {
     endDate: {
       type: DataTypes.DATE,
       allowNull: false,
+      get() {
+        return this.getDataValue('endDate').toISOString().split('T')[0];
+      },
       validate: {
         isDate: true,
         isAfterStartDate(value) {

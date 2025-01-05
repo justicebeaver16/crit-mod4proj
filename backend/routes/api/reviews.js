@@ -27,9 +27,18 @@ router.get('/current', requireAuth, async (req, res) => {
       },
       {
         model: Spot,
-        attributes: {
-          exclude: ['description', 'createdAt', 'updatedAt']
-        },
+        attributes: [
+          'id', 
+          'ownerId', 
+          'address', 
+          'city', 
+          'state', 
+          'country', 
+          'lat', 
+          'lng', 
+          'name', 
+          'price'
+      ],
         include: [{
           model: SpotImage,
           where: { preview: true },
@@ -41,15 +50,22 @@ router.get('/current', requireAuth, async (req, res) => {
         model: ReviewImage,
         attributes: ['id', 'url']
       }
-    ]
+    ],
+    order: [['createdAt', 'DESC']]
   });
 
   const formattedReviews = reviews.map(review => {
     const reviewData = review.toJSON();
-    if (reviewData.Spot && reviewData.Spot.SpotImages.length > 0) {
-      reviewData.Spot.previewImage = reviewData.Spot.SpotImages[0].url;
+    if (reviewData.Spot) {
+      reviewData.Spot.previewImage = reviewData.Spot.SpotImages?.[0]?.url || null;
+      delete reviewData.Spot.SpotImages;
     }
-    delete reviewData.Spot.SpotImages;
+
+    reviewData.ReviewImages = reviewData.ReviewImages || [{
+      id: 1,
+      url: "image url"
+    }];
+
     return reviewData;
   });
 
@@ -102,14 +118,21 @@ router.put('/:reviewId', requireAuth, validateReview, async (req, res) => {
     return res.status(403).json({ message: "Forbidden" });
   }
 
-  const { review: reviewText, stars } = req.body;
+  await review.update(req.body);
 
-  await review.update({
-    review: reviewText,
-    stars
+  const updatedReview = await Review.findByPk(req.params.reviewId, {
+    attributes: [
+        'id', 
+        'userId',
+        'spotId', 
+        'review', 
+        'stars',
+        'createdAt',
+        'updatedAt'
+    ]
   });
 
-  res.json(review);
+  res.json(updatedReview);
 });
 
 //delete a review

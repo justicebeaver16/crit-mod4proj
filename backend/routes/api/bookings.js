@@ -25,6 +25,25 @@ const validateBooking = [
   handleValidationErrors
 ];
 
+//create a booking
+router.post('/:spotId/bookings', requireAuth, async (req, res) => {
+  const spot = await Spot.findByPk(req.params.spotId);
+  const booking = await Booking.create({
+    spotId: parseInt(req.params.spotId),
+    userId: req.user.id,
+    startDate: start,
+    endDate: end
+});
+
+const formattedBooking = {
+  ...booking.toJSON(),
+  startDate: booking.startDate.toISOString().split('T')[0],
+  endDate: booking.endDate.toISOString().split('T')[0]
+};
+
+res.status(201).json(formattedBooking);
+});
+
 //get all current user's bookings
 router.get('/current', requireAuth, async (req, res) => {
   const bookings = await Booking.findAll({
@@ -49,6 +68,8 @@ router.get('/current', requireAuth, async (req, res) => {
       bookingData.Spot.previewImage = bookingData.Spot.SpotImages[0].url;
     }
     delete bookingData.Spot.SpotImages;
+    bookingData.startDate = booking.startDate.toISOString().split('T')[0];
+    bookingData.endDate = booking.endDate.toISOString().split('T')[0];
     return bookingData;
   });
 
@@ -101,12 +122,15 @@ router.put('/:bookingId', requireAuth, validateBooking, async (req, res) => {
     });
   }
 
-  await booking.update({
-    startDate: new Date(startDate),
-    endDate: new Date(endDate)
-  });
+  await booking.update(req.body);
 
-  res.json(booking);
+  const formattedBooking = {
+    ...booking.toJSON(),
+    startDate: booking.startDate.toISOString().split('T')[0],
+    endDate: booking.endDate.toISOString().split('T')[0]
+  };
+
+  res.json(formattedBooking);
 });
 
 //delete a booking

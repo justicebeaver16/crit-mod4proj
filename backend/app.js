@@ -9,6 +9,8 @@ const routes = require('./routes');
 const { ValidationError } = require('sequelize');
 const { environment } = require('./config');
 const isProduction = environment === 'production';
+const reviewsRouter = require('./routes/api/reviews');
+const reviewImagesRouter = require('./routes/api/review-images');
 
 const app = express();
 
@@ -16,12 +18,14 @@ const app = express();
 app.use(morgan('dev'));
 app.use(cookieParser());
 app.use(express.json());
+app.use('/api/reviews', reviewsRouter);
+app.use('/api/review-images', reviewImagesRouter);
 
 //security middleware
-if (!isProduction) {
-    //enable cors only in development
-    app.use(cors());
-  }
+app.use(cors({ 
+  origin: true,
+  credentials: true 
+}));
   
 //helmet helps set headers for better security
   app.use(
@@ -30,6 +34,15 @@ if (!isProduction) {
     })
   );
   
+//csrf route
+app.get('/csrf/restore', (req, res) => {
+  const csrfToken = req.csrfToken();
+  res.cookie("XSRF-TOKEN", csrfToken);
+  res.status(200).res.json({
+    'XSRF-Token': csrfToken
+  });
+});
+
   //sets _csrf token and creates req.csrfToken
   app.use(
     csurf({

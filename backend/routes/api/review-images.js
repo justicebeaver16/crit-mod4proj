@@ -19,7 +19,10 @@ router.delete('/:imageId', requireAuth, async (req, res) => {
  }
 
  await reviewImage.destroy();
- res.json({ message: "Successfully deleted" });
+
+    res.json({
+        message: "Successfully deleted"
+    });
 });
 
 module.exports = router;

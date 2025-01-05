@@ -72,7 +72,34 @@ module.exports = (sequelize, DataTypes) => {
         }
       }
     },
-//does it need lat and lng for location?
+    lat: {
+      type: DataTypes.DECIMAL(9,7),
+      allowNull: false,
+      validate: {
+        min: {
+          args: [-90],
+          msg: "Latitude must be within -90 and 90"
+        },
+        max: {
+          args: [90],
+          msg: "Latitude must be within -90 and 90"
+        }
+      }
+    },
+    lng: {
+      type: DataTypes.DECIMAL(10,7),
+      allowNull: false,
+      validate: {
+        min: {
+          args: [-180],
+          msg: "Longitude must be within -180 and 180"
+        },
+        max: {
+          args: [180],
+          msg: "Longitude must be within -180 and 180"
+        }
+      }
+    },
     name: {
       type: DataTypes.STRING,
       allowNull: false,

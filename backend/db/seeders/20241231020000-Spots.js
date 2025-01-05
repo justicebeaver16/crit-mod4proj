@@ -18,7 +18,8 @@ module.exports = {
         city: "San Francisco",
         state: "California",
         country: "United States of America",
-        //add lat and lng if needed
+        lat: 37.7645358,
+        lng: -122.4730327,
         name: "App Academy",
         description: "Place where web developers are created",
         price: 123
@@ -29,55 +30,60 @@ module.exports = {
         city: "New York",
         state: "New York",
         country: "United States of America",
-        //add lat and lng if needed
+        lat: 40.7127753,
+        lng: -74.0059728,
         name: "Manhattan Coding Loft",
         description: "Luxury coding space in the heart of Manhattan",
         price: 250
       },
       {
-        ownerId: 2,
-        address: "789 Developer Drive",
-        city: "Seattle",
-        state: "Washington",
-        country: "United States of America",
-        //add lat and lng if needed
-        name: "Tech Hub Haven",
-        description: "Modern workspace with stunning city views",
-        price: 175
-      },
-      {
-        ownerId: 2,
-        address: "321 Startup Way",
-        city: "Austin",
-        state: "Texas",
-        country: "United States of America",
-        //add lat and lng if needed
-        name: "Austin Tech Center",
-        description: "Collaborative space in Austin's tech district",
-        price: 150
-      },
-      {
         ownerId: 3,
-        address: "555 Innovation Park",
-        city: "Boston",
-        state: "Massachusetts",
-        country: "United States of America",
-        //add lat and lng if needed
-        name: "Boston Code Suite",
-        description: "Historic building renovated for modern tech use",
-        price: 200
-      },
-      {
-        ownerId: 3,
-        address: "777 Silicon Valley Road",
-        city: "San Jose",
+        address: "789 Bay Area Blvd",
+        city: "Oakland",
         state: "California",
         country: "United States of America",
-        //add lat and lng if needed
-        name: "Valley Tech Space",
-        description: "Prime location in the heart of Silicon Valley",
+        lat: 37.8044,
+        lng: -122.2712,
+        name: "Bay Area Getaway",
+        description: "Beautiful spot with stunning bay views",
+        price: 175
+       },
+       {
+        ownerId: 1,
+        address: "321 Sunset Drive",
+        city: "Los Angeles",  
+        state: "California",
+        country: "United States of America",
+        lat: 34.0522,
+        lng: -118.2437,
+        name: "LA Dreams",
+        description: "Modern space in the heart of Hollywood",
+        price: 200
+       },
+       {
+        ownerId: 2,
+        address: "555 Lake Shore Drive",
+        city: "Chicago",
+        state: "Illinois", 
+        country: "United States of America",
+        lat: 41.8781,
+        lng: -87.6298,
+        name: "Windy City Loft",
+        description: "Luxurious loft overlooking Lake Michigan",
+        price: 225
+       },
+       {
+        ownerId: 3,
+        address: "999 South Beach Way",
+        city: "Miami",
+        state: "Florida",
+        country: "United States of America",
+        lat: 25.7617,
+        lng: -80.1918,
+        name: "Miami Paradise",
+        description: "Beachfront condo with ocean views",
         price: 300
-      }
+       }
     ], { validate: true });
   },
 
