@@ -35,10 +35,18 @@ router.post('/:spotId/bookings', requireAuth, async (req, res) => {
     endDate: end
 });
 
+const bookingData = booking.toJSON();
+const startDate = new Date(bookingData.startDate);
+const endDate = new Date(bookingData.endDate);
+const createdDate = new Date(bookingData.createdAt);
+const updatedDate = new Date(bookingData.updatedAt);
+
 const formattedBooking = {
-  ...booking.toJSON(),
-  startDate: booking.startDate.toISOString().split('T')[0],
-  endDate: booking.endDate.toISOString().split('T')[0]
+  ...bookingData,
+        startDate: startDate.toISOString().split('T')[0],
+        endDate: endDate.toISOString().split('T')[0],
+        createdAt: createdDate.toISOString().replace('T', ' ').replace(/\.\d+Z$/, ''),
+        updatedAt: updatedDate.toISOString().replace('T', ' ').replace(/\.\d+Z$/, '')
 };
 
 res.status(201).json(formattedBooking);
@@ -48,28 +56,44 @@ res.status(201).json(formattedBooking);
 router.get('/current', requireAuth, async (req, res) => {
   const bookings = await Booking.findAll({
     where: { userId: req.user.id },
-    include: {
-      model: Spot,
-      attributes: { 
-        exclude: ['description', 'createdAt', 'updatedAt'] 
-      },
-      include: [{
-        model: SpotImage,
-        where: { preview: true },
-        attributes: ['url'],
-        required: false
-      }]
-    }
-  });
+        include: [
+            {
+                model: Spot,
+                attributes: [
+                    'id', 'ownerId', 'address', 'city', 'state', 'country',
+                    'lat', 'lng', 'name', 'price'
+                ],
+                include: [{
+                    model: SpotImage,
+                    where: { preview: true },
+                    attributes: ['url'],
+                    required: false
+                }]
+            }
+        ]
+    });
 
   const formattedBookings = bookings.map(booking => {
     const bookingData = booking.toJSON();
-    if (bookingData.Spot.SpotImages.length > 0) {
-      bookingData.Spot.previewImage = bookingData.Spot.SpotImages[0].url;
-    }
-    delete bookingData.Spot.SpotImages;
-    bookingData.startDate = booking.startDate.toISOString().split('T')[0];
-    bookingData.endDate = booking.endDate.toISOString().split('T')[0];
+    if (bookingData.Spot) {
+      bookingData.Spot.previewImage = bookingData.Spot.SpotImages?.[0]?.url || null;
+      delete bookingData.Spot.SpotImages;
+  }
+  const startDate = new Date(bookingData.startDate);
+  const endDate = new Date(bookingData.endDate);
+  const createdDate = new Date(bookingData.createdAt);
+  const updatedDate = new Date(bookingData.updatedAt);
+
+  bookingData.startDate = startDate.toISOString().split('T')[0];
+  bookingData.endDate = endDate.toISOString().split('T')[0];
+  bookingData.createdAt = createdDate
+      .toISOString()
+      .replace('T', ' ')
+      .replace(/\.\d+Z$/, '');
+  bookingData.updatedAt = updatedDate
+      .toISOString()
+      .replace('T', ' ')
+      .replace(/\.\d+Z$/, '');
     return bookingData;
   });
 
@@ -92,47 +116,55 @@ router.put('/:bookingId', requireAuth, validateBooking, async (req, res) => {
     return res.status(403).json({ message: "Past bookings can't be modified" });
   }
 
-  const { startDate, endDate } = req.body;
-  const conflictingBooking = await Booking.findOne({
-    where: {
-      spotId: booking.spotId,
-      id: { [Op.ne]: booking.id },
-      [Op.or]: [
-        {
-          startDate: {
-            [Op.between]: [new Date(startDate), new Date(endDate)]
-          }
-        },
-        {
-          endDate: {
-            [Op.between]: [new Date(startDate), new Date(endDate)]
-          }
-        }
-      ]
-    }
-  });
-
-  if (conflictingBooking) {
-    return res.status(403).json({
-      message: "Sorry, this spot is already booked for the specified dates",
-      errors: {
-        startDate: "Start date conflicts with an existing booking",
-        endDate: "End date conflicts with an existing booking"
-      }
-    });
-  }
-
   await booking.update(req.body);
 
+  const bookingData = booking.toJSON();
+  const startDate = new Date(bookingData.startDate);
+  const endDate = new Date(bookingData.endDate);
+  const createdDate = new Date(bookingData.createdAt);
+  const updatedDate = new Date(bookingData.updatedAt);
+
   const formattedBooking = {
-    ...booking.toJSON(),
-    startDate: booking.startDate.toISOString().split('T')[0],
-    endDate: booking.endDate.toISOString().split('T')[0]
-  };
+    ...bookingData,
+        startDate: startDate.toISOString().split('T')[0],
+        endDate: endDate.toISOString().split('T')[0],
+        createdAt: createdDate.toISOString().replace('T', ' ').replace(/\.\d+Z$/, ''),
+        updatedAt: updatedDate.toISOString().replace('T', ' ').replace(/\.\d+Z$/, '')
+};
 
   res.json(formattedBooking);
 });
 
+//get all bookings by spotid
+router.get('/:spotId/bookings', requireAuth, async (req, res) => {
+  const bookings = await Booking.findAll({
+    where: { spotId: req.params.spotId },
+    include: [
+        {
+            model: User,
+            attributes: ['id', 'firstName', 'lastName']
+        }
+    ]
+});
+
+const formattedBookings = bookings.map(booking => {
+    const bookingData = booking.toJSON();
+    const startDate = new Date(bookingData.startDate);
+    const endDate = new Date(bookingData.endDate);
+    const createdDate = new Date(bookingData.createdAt);
+    const updatedDate = new Date(bookingData.updatedAt);
+
+    return {
+        ...bookingData,
+        startDate: startDate.toISOString().split('T')[0],
+        endDate: endDate.toISOString().split('T')[0],
+        createdAt: createdDate.toISOString().replace('T', ' ').replace(/\.\d+Z$/, ''),
+        updatedAt: updatedDate.toISOString().replace('T', ' ').replace(/\.\d+Z$/, '')
+    };
+});
+
+res.json({ Bookings: formattedBookings });
+});
 //delete a booking
 router.delete('/:bookingId', requireAuth, async (req, res) => {
   const booking = await Booking.findByPk(req.params.bookingId, {

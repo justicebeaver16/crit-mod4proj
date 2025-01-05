@@ -53,61 +53,29 @@ module.exports = (sequelize, DataTypes) => {
           }
         }
       }
+    },
+    createdAt: {
+      type: DataTypes.DATE,
+      get() {
+        return this.getDataValue('createdAt')
+          .toISOString()
+          .replace('T', ' ')
+          .replace('.000Z', '');
+      }
+    },
+    updatedAt: {
+      type: DataTypes.DATE,
+      get() {
+        return this.getDataValue('updatedAt')
+          .toISOString()
+          .replace('T', ' ')
+          .replace('.000Z', '');
+      }
     }
   }, {
     sequelize,
     modelName: 'Booking',
-    defaultScope: {
-      attributes: {
-        exclude: ['createdAt', 'updatedAt']
-      }
-    },
-    scopes: {
-      //owner view - includes user data
-      withUser: {
-        include: [{
-          model: sequelize.models.User,
-          attributes: ['id', 'firstName', 'lastName']
-        }]
-      },
-      //guest view - excludes user data
-      notOwner: {
-        attributes: ['spotId', 'startDate', 'endDate']
-      }
-    },
-    // validate: {
-    //   //so booking dates don't overlap
-    //   async noOverlappingBookings() {
-    //     const existingBooking = await Booking.findOne({
-    //       where: {
-    //         spotId: this.spotId,
-    //         id: { [sequelize.Op.ne]: this.id }, //excludes current booking if updating
-    //         [sequelize.Op.or]: [
-    //           {
-    //             startDate: {
-    //               [sequelize.Op.between]: [this.startDate, this.endDate]
-    //             }
-    //           },
-    //           {
-    //             endDate: {
-    //               [sequelize.Op.between]: [this.startDate, this.endDate]
-    //             }
-    //           },
-    //           {
-    //             [sequelize.Op.and]: [
-    //               { startDate: { [sequelize.Op.lte]: this.startDate } },
-    //               { endDate: { [sequelize.Op.gte]: this.endDate } }
-    //             ]
-    //           }
-    //         ]
-    //       }
-    //     });
-
-    //     if (existingBooking) {
-    //       throw new Error('Sorry, this spot is already booked for the specified dates');
-    //     }
-    //   }
-    // }
   });
+  
   return Booking;
 };

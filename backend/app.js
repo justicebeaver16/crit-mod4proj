@@ -9,8 +9,12 @@ const routes = require('./routes');
 const { ValidationError } = require('sequelize');
 const { environment } = require('./config');
 const isProduction = environment === 'production';
+
+const spotsRouter = require('./routes/api/spots');
 const reviewsRouter = require('./routes/api/reviews');
 const reviewImagesRouter = require('./routes/api/review-images');
+const bookingsRouter = require('./routes/api/bookings');
+const spotImagesRouter = require('./routes/api/spot-images');
 
 const app = express();
 
@@ -18,8 +22,11 @@ const app = express();
 app.use(morgan('dev'));
 app.use(cookieParser());
 app.use(express.json());
+app.use('/api/spots', spotsRouter);
 app.use('/api/reviews', reviewsRouter);
 app.use('/api/review-images', reviewImagesRouter);
+app.use('/api/bookings', bookingsRouter);
+app.use('/api/spot-images', spotImagesRouter);
 
 //security middleware
 app.use(cors({ 
@@ -82,7 +89,6 @@ app.use((err, _req, _res, next) => {
 //error formatting
 app.use((err, _req, res, _next) => {
   res.status(err.status || 500);
-  // console.error(err); //remove console.log once in production
   res.json({
     title: err.title || 'Server Error',
     message: err.message,

@@ -1,5 +1,5 @@
 const { validationResult } = require('express-validator');
-const { check } = require('express-validator');
+const { check, query } = require('express-validator');
 
 //middleware for formatting errors
 const handleValidationErrors = (req, _res, next) => {
@@ -9,13 +9,14 @@ const handleValidationErrors = (req, _res, next) => {
     const errors = {};
     validationErrors
       .array()
-      .forEach(error => errors[error.path] = error.msg);
+      .forEach(error => 
+        errors[error.path] = error.msg);
 
     const err = Error("Bad request.");
     err.errors = errors;
     err.status = 400;
     err.title = "Bad request.";
-    next(err);
+    return next(err);
   }
   next();
 };
@@ -39,6 +40,7 @@ const validateSignup = [
   handleValidationErrors
 ];
 
+//validate spot
 const validateSpot = [
   check('address')
     .exists({ checkFalsy: true })
@@ -74,26 +76,43 @@ const validateSpot = [
   handleValidationErrors
 ];
 
+//validate query
 const validateQuery = [
-  check('minLat')
+  query('page')
     .optional()
-    .isFloat({ min: -90, max: 90 })
+    .isInt({ min: 1 })
+    .withMessage('Page must be greater than or equal to 1'),
+  query('size')
+    .optional()
+    .isInt({ min: 1, max: 20 })
+    .withMessage('Size must be between 1 and 20'),
+  query('minLat')
+    .optional()
+    .isDecimal()
     .withMessage('Minimum latitude is invalid'),
-  check('maxLat')
+  query('maxLat')
     .optional()
-    .isFloat({ min: -90, max: 90 })
+    .isDecimal()
     .withMessage('Maximum latitude is invalid'),
-  check('minLng')
+  query('minLng')
     .optional()
-    .isFloat({ min: -180, max: 180 })
+    .isDecimal()
     .withMessage('Minimum longitude is invalid'),
-  check('maxLng')
+  query('maxLng')
     .optional()
-    .isFloat({ min: -180, max: 180 })
+    .isDecimal()
     .withMessage('Maximum longitude is invalid'),
+  query('minPrice')
+    .optional()
+    .isFloat({ min: 0 })
+    .withMessage('Minimum price must be greater than or equal to 0'),
+  query('maxPrice')
+    .optional()
+    .isFloat({ min: 0 })
+    .withMessage('Maximum price must be greater than or equal to 0'),
   handleValidationErrors
 ];
 
 module.exports = {
-  handleValidationErrors, validateSignup, validateSpot, validateQuery
+  handleValidationErrors, validateQuery, validateSignup, validateSpot, 
 };
