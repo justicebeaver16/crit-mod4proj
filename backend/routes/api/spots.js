@@ -230,8 +230,13 @@ router.post('/', requireAuth, validateSpot, async (req, res) => {
         ownerId: req.user.id,
         ...req.body
     });
-    
-    return res.status(201).json(spot);
+    const spotData = spot.toJSON();
+    const createdDate = new Date(spotData.createdAt);
+    const updatedDate = new Date(spotData.updatedAt);
+
+    spotData.createdAt = createdDate.toISOString().replace('T', ' ').replace(/\.\d+Z$/, '');
+    spotData.updatedAt = updatedDate.toISOString().replace('T', ' ').replace(/\.\d+Z$/, '');
+    return res.status(201).json(spotData);
 });
 
 
