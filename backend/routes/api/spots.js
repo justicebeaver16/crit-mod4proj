@@ -156,8 +156,13 @@ router.get('/current', requireAuth, async (req, res) => {
             ]
       }
     });
+    
     const formattedSpots = spots.map(spot => {
       const spotData = spot.toJSON();
+      const createdDate = new Date(spotData.createdAt);
+      const updatedDate = new Date(spotData.updatedAt);
+      spotData.createdAt = createdDate.toISOString().replace('T', ' ').replace(/\.\d+Z$/, '');
+      spotData.updatedAt = updatedDate.toISOString().replace('T', ' ').replace(/\.\d+Z$/, '');
       spotData.avgRating = Number(spotData.avgRating).toFixed(1);
       spotData.previewImage = spotData.SpotImages?.[0]?.url || null;
       delete spotData.SpotImages;
