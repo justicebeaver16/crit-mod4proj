@@ -302,8 +302,14 @@ router.put('/:spotId', requireAuth, validateSpot, async (req, res) => {
           'updatedAt'
       ]
   });
+  const spotData = updatedSpot.toJSON();
+  const createdDate = new Date(spotData.createdAt);
+  const updatedDate = new Date(spotData.updatedAt);
 
-    res.json(updatedSpot);
+  spotData.createdAt = createdDate.toISOString().replace('T', ' ').replace(/\.\d+Z$/, '');
+  spotData.updatedAt = updatedDate.toISOString().replace('T', ' ').replace(/\.\d+Z$/, '');
+  return res.json(spotData);
+    
    });
 
 
