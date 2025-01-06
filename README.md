@@ -2,7 +2,7 @@
 
 ## Database Schema Design
 
-`<insert database schema design here>`
+`<crit_mod4proj_schema>`
 
 ## API Documentation
 
