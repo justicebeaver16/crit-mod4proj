@@ -402,8 +402,13 @@ router.post('/:spotId/reviews', requireAuth, async (req, res) => {
       review,
       stars
     });
-   
-    res.status(201).json(newReview);
+    const reviewData = newReview.toJSON();
+    const createdDate = new Date(reviewData.createdAt);
+    const updatedDate = new Date(reviewData.updatedAt);
+  
+    reviewData.createdAt = createdDate.toISOString().replace('T', ' ').replace(/\.\d+Z$/, '');
+    reviewData.updatedAt = updatedDate.toISOString().replace('T', ' ').replace(/\.\d+Z$/, '');
+    res.status(201).json(reviewData);
    });
 
 
@@ -514,8 +519,13 @@ router.post('/:spotId/bookings', requireAuth, async (req, res) => {
       startDate: start,
       endDate: end
     });
-   
-    res.status(201).json(booking);
+    const bookingData = booking.toJSON();
+    const createdDate = new Date(bookingData.createdAt);
+    const updatedDate = new Date(bookingData.updatedAt);
+  
+    bookingData.createdAt = createdDate.toISOString().replace('T', ' ').replace(/\.\d+Z$/, '');
+    bookingData.updatedAt = updatedDate.toISOString().replace('T', ' ').replace(/\.\d+Z$/, '');
+    res.status(201).json(bookingData);
    });
 
 module.exports = router;
