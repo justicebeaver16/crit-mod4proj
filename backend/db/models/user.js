@@ -13,10 +13,7 @@ module.exports = (sequelize, DataTypes) => {
     }
     //validate password
     validatePassword(password) {
-      return bcrypt.compareSync(
-        password, 
-        this.hashedPassword.toString()
-      );
+      return bcrypt.compareSync(password, this.hashedPassword);
     }
 
     static getCurrentUserById(id) {
@@ -96,7 +93,7 @@ module.exports = (sequelize, DataTypes) => {
         }
       },
       hashedPassword: {
-        type: DataTypes.STRING.BINARY,
+        type: DataTypes.STRING,
         allowNull: false,
         validate: {
           len: [60, 60],
