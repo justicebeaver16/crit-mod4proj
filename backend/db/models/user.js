@@ -13,7 +13,10 @@ module.exports = (sequelize, DataTypes) => {
     }
     //validate password
     validatePassword(password) {
-      return bcrypt.compareSync(password, this.hashedPassword.toString());
+      return bcrypt.compareSync(
+        password, 
+        this.hashedPassword.toString()
+      );
     }
 
     static getCurrentUserById(id) {
@@ -74,7 +77,6 @@ module.exports = (sequelize, DataTypes) => {
       username: {
         type: DataTypes.STRING,
         allowNull: false,
-        // unique: true,
         validate: {
           len: [4, 30],
           isNotEmail(value) {
@@ -94,7 +96,7 @@ module.exports = (sequelize, DataTypes) => {
         }
       },
       hashedPassword: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING.BINARY,
         allowNull: false,
         validate: {
           len: [60, 60],
@@ -103,26 +105,10 @@ module.exports = (sequelize, DataTypes) => {
       firstName: {
         type: DataTypes.STRING,
         allowNull: false,
-        // validate: {
-        //   len: [3, 256],
-        //   isNotEmail(value) {
-        //     if (Validator.isEmail(value)) {
-        //       throw new Error("Cannot be an email.");
-        //     }
-        //   }
-        // }
       },
       lastName: {
         type: DataTypes.STRING,
         allowNull: false,
-        // validate: {
-        //   len: [3, 256],
-        //   isNotEmail(value) {
-        //     if (Validator.isEmail(value)) {
-        //       throw new Error("Cannot be an email.");
-        //     }
-        //   }
-        // }
       },
     },
     {

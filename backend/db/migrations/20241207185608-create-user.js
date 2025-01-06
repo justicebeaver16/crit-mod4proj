@@ -50,9 +50,6 @@ module.exports = {
       }
     }, options); //include for EVERY MIGRATION for Render deployment
 
-    // //optimization
-    // await queryInterface.addIndex('Users', ['username']);
-    // await queryInterface.addIndex('Users', ['email']);
   },
 
   async down(queryInterface, Sequelize) {

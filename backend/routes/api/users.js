@@ -27,31 +27,10 @@ const validateSignup = [
     handleValidationErrors
   ];
 
-//sign up
-// router.post('/', validateSignup, async (req, res) => {  
-//       const { email, firstName, lastName, password, username } = req.body;
-//       const hashedPassword = bcrypt.hashSync(password);
-//       const user = await User.create({ email, firstName, lastName, username, hashedPassword });
 router.post('/', validateSignup, async (req, res) => {
   const { email, password, username, firstName, lastName } = req.body;
-  
-  //     const safeUser = {
-  //       id: user.id,
-  //       firstName: user.firstName,
-  //       lastName: user.lastName,
-  //       email: user.email,
-  //       username: user.username,
-  //     };
-  
-  //     await setTokenCookie(res, safeUser);
-  
-  //     return res.json({
-  //       user: safeUser
-  //     });
-  //   }
-  // );
 
-//check if email exists
+  //check if email exists
 const existingEmail = await User.findOne({
   where: { email }
 });
