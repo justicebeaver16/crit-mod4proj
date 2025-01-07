@@ -2,7 +2,7 @@
 
 ## Database Schema Design
 
-`<crit_mod4proj_schema>`
+`<https://crit-mod4proj.onrender.com/>`
 
 ## API Documentation
 
